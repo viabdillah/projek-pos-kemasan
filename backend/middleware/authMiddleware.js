@@ -35,4 +35,17 @@ const isAdmin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, isAdmin };
+// Middleware baru untuk otorisasi berdasarkan peran
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    // Cek apakah peran user yang login ada di dalam daftar 'roles' yang diizinkan
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Akses ditolak. Role '${req.user.role}' tidak diizinkan untuk mengakses sumber daya ini.` 
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, isAdmin, authorize };

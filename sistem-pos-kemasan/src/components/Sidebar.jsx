@@ -22,6 +22,7 @@ function Sidebar({ isOpen }) {
         <li className="mb-2"><a href="#" className="hover:bg-gray-700 p-2 rounded block">Pesanan</a></li>
         <li className="mb-2"><a href="#" className="hover:bg-gray-700 p-2 rounded block">Desain</a></li>
         {/* Tampilkan link ini hanya jika role user adalah 'admin' */}
+        
         {user && user.role === 'admin' && (
           <li className="mb-2">
             <a href="/manage-users" className="hover:bg-gray-700 p-2 rounded block">
@@ -29,6 +30,20 @@ function Sidebar({ isOpen }) {
             </a>
           </li>
         )}
+
+       {user && (user.role === 'admin' || user.role === 'kasir') && (
+          <li className="mb-2">
+            <a href="/new-order" className="hover:bg-gray-700 p-2 rounded block font-bold">
+              + Pesanan Baru
+            </a>
+          </li>
+        )}
+
+        <li className="mb-2">
+          <a href="/orders" className="hover:bg-gray-700 p-2 rounded block">
+            Daftar Pesanan
+          </a>
+        </li>
       </ul>
 
       {/* div ini akan mendorong tombol logout ke bawah */}

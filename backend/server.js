@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const orderRoutes = require('./routes/orders');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json()); // Mem-parsing body request JSON
 // Rute
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Rute dasar untuk tes
 app.get('/', (req, res) => {
