@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -76,8 +77,9 @@ function OrderList() {
         <table className="min-w-full leading-normal">
           <thead>
             <tr>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID Pesanan</th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Pelanggan</th>
+              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Pelanggan</th>
+              {/* Tambahkan kolom 'Ringkasan Item' */}
+              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ringkasan Item</th>
               <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Harga</th>
               <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Kasir</th>
               <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
@@ -88,8 +90,13 @@ function OrderList() {
           <tbody>
             {orders.map((order) => (
               <tr key={order.id}>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">#{order.id}</td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{order.customer_name}</td>
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p className="text-gray-900 whitespace-no-wrap font-semibold">#{order.id} - {order.customer_name}</p>
+                </td>
+                {/* Tampilkan data 'items_summary' */}
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p className="text-gray-900 whitespace-pre-wrap">{order.items_summary}</p>
+                </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm font-semibold">{formatCurrency(order.total_price)}</td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{order.created_by_name}</td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -100,12 +107,10 @@ function OrderList() {
                 </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{formatDate(order.created_at)}</td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
-                   <button className="text-indigo-600 hover:text-indigo-900">Detail</button>
-                   <button 
-                        onClick={() => handleReorder(order.id)}
-                        className="text-green-600 hover:text-green-900">
-                        Buat Ulang
-                    </button>
+                   <Link to={`/order/${order.id}`} className="text-indigo-600 hover:text-indigo-900 mr-3">
+                    Detail
+                  </Link>
+                   <button onClick={() => handleReorder(order.id)} className="text-green-600 hover:text-green-900">Buat Ulang</button>
                 </td>
               </tr>
             ))}

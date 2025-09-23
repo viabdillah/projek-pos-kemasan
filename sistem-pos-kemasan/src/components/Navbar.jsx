@@ -1,6 +1,9 @@
 // src/components/Navbar.jsx
+import { useAuth } from '../context/AuthContext'; // 1. Import useAuth
 
 function Navbar({ onMenuButtonClick }) {
+  const { user } = useAuth(); // 2. Ambil data 'user' dari context
+
   return (
     <nav className="bg-white shadow-md p-4 flex justify-between items-center md:justify-end">
       {/* Tombol Hamburger Menu (Hanya tampil di mobile) */}
@@ -12,10 +15,11 @@ function Navbar({ onMenuButtonClick }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
         </svg>
       </button>
-
-      {/* Elemen Navbar lain (Contoh: Profil Pengguna) */}
+      
+      {/* Profil Pengguna (sekarang dinamis) */}
       <div className="hidden md:block">
-        <span className="text-gray-700">Halo, Pengguna!</span>
+        {/* 3. Tampilkan nama user jika ada */}
+        <span className="text-gray-700">Halo, {user ? user.name : 'Pengguna'}!</span>
       </div>
     </nav>
   );

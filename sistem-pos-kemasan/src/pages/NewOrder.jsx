@@ -14,7 +14,7 @@ function NewOrder() {
     customer_phone: '',
     customer_address: '',
     items: [{ 
-      product_name: '', quantity: 1, price_per_item: 0,
+      product_name: '', size: '', quantity: 1, price_per_item: 0,
       project_product_name: '', project_label_name: '', halal_no: '', 
       pirt_no: '', nib_no: '', has_design: false 
     }]
@@ -42,7 +42,7 @@ function NewOrder() {
     setFormData(prev => ({
       ...prev,
       items: [...prev.items, { 
-        product_name: '', quantity: 1, price_per_item: 0,
+        product_name: '', size: '', quantity: 1, price_per_item: 0,
         project_product_name: '', project_label_name: '', halal_no: '', 
         pirt_no: '', nib_no: '', has_design: false 
       }]
@@ -126,6 +126,7 @@ function NewOrder() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-3 font-semibold text-gray-600">Detail Kemasan</div>
               <input type="text" name="product_name" placeholder="Jenis Kemasan" value={item.product_name} onChange={(e) => handleItemChange(index, e)} className="border border-gray-300 rounded-md py-2 px-3" required />
+              <input type="text" name="size" placeholder="Ukuran" value={item.size} onChange={(e) => handleItemChange(index, e)} className="border border-gray-300 rounded-md py-2 px-3 w-full" />
               <input type="number" name="quantity" placeholder="Jumlah" value={item.quantity} onChange={(e) => handleItemChange(index, e)} className="border border-gray-300 rounded-md py-2 px-3" required />
               <input type="number" name="price_per_item" placeholder="Harga Satuan" value={item.price_per_item} onChange={(e) => handleItemChange(index, e)} className="border border-gray-300 rounded-md py-2 px-3" required />
               

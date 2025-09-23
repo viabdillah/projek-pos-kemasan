@@ -45,6 +45,7 @@ router.post('/', protect, authorize('admin', 'kasir'), async (req, res) => {
       await connection.query(itemQuery, [
         orderId, 
         item.product_name, 
+        item.size,
         item.quantity, 
         item.price_per_item,
         item.project_product_name,
@@ -72,6 +73,7 @@ router.post('/', protect, authorize('admin', 'kasir'), async (req, res) => {
 // Diproteksi, hanya user yang login yang bisa akses
 router.get('/', protect, async (req, res) => {
   try {
+    // Query ini sekarang menggabungkan semua item menjadi satu string
     const query = `
       SELECT 
         o.id, 
@@ -79,12 +81,15 @@ router.get('/', protect, async (req, res) => {
         o.total_price, 
         o.status, 
         o.created_at, 
-        u.name AS created_by_name 
+        u.name AS created_by_name,
+        GROUP_CONCAT(CONCAT(oi.product_name, ' (', oi.size, ') x', oi.quantity) SEPARATOR '\n') AS items_summary
       FROM orders AS o
       JOIN users AS u ON o.created_by = u.id
+      LEFT JOIN order_items AS oi ON o.id = oi.order_id
+      GROUP BY o.id
       ORDER BY o.created_at DESC
     `;
-    
+
     const [orders] = await db.query(query);
 
     res.json(orders);
@@ -119,6 +124,69 @@ router.get('/:id', protect, async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   } finally {
     if (connection) connection.release();
+  }
+});
+
+// GET /api/orders/design-queue - Mendapatkan antrian tugas untuk desainer
+router.get('/design-queue', protect, authorize('admin', 'desainer'), async (req, res) => {
+  try {
+    const query = "SELECT * FROM orders WHERE status = 'Antrian Desain' ORDER BY created_at ASC";
+    const [tasks] = await db.query(query);
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// PUT /api/orders/:id/status - Mengubah status pesanan
+router.put('/:id/status', protect, authorize('admin', 'desainer', 'operator'), async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  // Validasi status yang masuk
+  const allowedStatus = ['Menunggu Pembayaran', 'Antrian Desain', 'Proses Desain', 'Antrian Produksi', 'Proses Produksi', 'Selesai', 'Dibatalkan'];
+  if (!status || !allowedStatus.includes(status)) {
+    return res.status(400).json({ message: 'Status tidak valid' });
+  }
+
+  try {
+    await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+    res.json({ message: `Status pesanan berhasil diubah menjadi ${status}` });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// GET /api/orders/production-queue - Mendapatkan antrian tugas untuk operator
+router.get('/production-queue', protect, authorize('admin', 'operator'), async (req, res) => {
+  try {
+    const query = "SELECT * FROM orders WHERE status = 'Antrian Produksi' ORDER BY created_at ASC";
+    const [tasks] = await db.query(query);
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// GET /api/orders/pickup-queue - Mendapatkan antrian tugas untuk kasir
+router.get('/pickup-queue', protect, authorize('admin', 'kasir'), async (req, res) => {
+  try {
+    const query = "SELECT * FROM orders WHERE status = 'Siap Diambil' ORDER BY created_at ASC";
+    const [tasks] = await db.query(query);
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// GET /api/orders/design-in-progress - Mendapatkan tugas desain yang sedang berjalan
+router.get('/design-in-progress', protect, authorize('admin', 'desainer'), async (req, res) => {
+  try {
+    const query = "SELECT * FROM orders WHERE status = 'Proses Desain' ORDER BY created_at ASC";
+    const [tasks] = await db.query(query);
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
